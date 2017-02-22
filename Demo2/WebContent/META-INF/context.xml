@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>  
+  <Resource name="jdbc/abetdb.sqlite.sqlite" 
+            auth="Container" 
+            type="javax.sql.DataSource" 
+            driverClassName="org.sqlite.JDBC"
+            url="jdbc:sqlite:/home/thigu1a/abetdb.sqlite.sqlite"
+            factory="org.apache.tomcat.jdbc.pool.DataSourceFactory">
+  </Resource>
+</Context>
