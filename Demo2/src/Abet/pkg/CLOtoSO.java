@@ -1,3 +1,11 @@
+//Project Name  :Abet Application
+//Module Name   :Course Learning Objectives to Student Outcomes Mapper
+//Description   :This servlet is back end code for CLOtoSO.jsp, this code connects the CLOtoSo module to the database. depending
+//				 on the id pulled from the jsp page, the required data from the CLOtoSO, StudentOutcome, CourseLearningObjective
+//               tables in the database is pulled and further pushed onto jsp page. 
+//Exceptions Caught:Naming Exception and SQL Exception.
+//Libraries Used: IO, util, SQl, javax.servelt, javax.naming,javax.sql.
+//
 package Abet.pkg;
 
 import java.io.IOException;
@@ -38,24 +46,28 @@ public class CLOtoSO extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		int id=-1;
 		Connection conn=null;
-		String selectedvalue=request.getParameter("map-${SOId.value}_${CLODescription.key");
+			
+		String selectedvalue=request.getParameter("map-${CLODescription.key_${SOId.value}");
 		
+		//checking if the id contains key, if it exists it is type casted and taken into INT type variable id
 		if(request.getParameterMap().containsKey("id")){
-			id=Integer.parseInt(request.getParameter("id"));
+			id=Integer.parseInt(request.getParameter("id")); //Attempt to pull the id
 		}
 		try{
+			//establishing connection to the database
 			Context ctx= new InitialContext();
 			DataSource ds=(DataSource)ctx.lookup("java:comp/env/jdbc/abetdb.sqlite.sqlite");
 			conn=ds.getConnection();
 			  	
+			//if id is set the data for the particular course is pulled from the database
 				if(id>=0)
 				{
-					HashMap<String,Integer> SOIdsMap=new HashMap<String,Integer>();
-					HashMap<Integer,String> SODescriptionsMap=new HashMap<Integer,String>();
-					HashMap<Integer,String> CLODescriptionsMap=new HashMap<Integer,String>();
-					HashMap<String,String> CLOtoSOMap=new HashMap<String,String>();
-					HashMap<Integer,String> TopicsCovered=new HashMap<Integer,String>();
-					HashMap<Integer,String>  optionvalues=new HashMap<Integer,String>();
+					HashMap<String,Integer> SOIdsMap=new HashMap<String,Integer>(); //HashMap SOIdsMap to store Id,Identifier from Student Outcome
+					HashMap<Integer,String> SODescriptionsMap=new HashMap<Integer,String>(); //HashMap SODescriptionMap to store Id,Description From Student Outcome
+					HashMap<Integer,String> CLODescriptionsMap=new HashMap<Integer,String>(); //HashMap CLODescriptionMap to store Id,Description from CourseLearningObjective
+					HashMap<String,String> CLOtoSOMap=new HashMap<String,String>();      //HashMap CLOtoSOMap to store CLOID,SOID,link from CLOtoSO
+					HashMap<Integer,String> TopicsCovered=new HashMap<Integer,String>(); //Hash map TopicsCovered to store id and description as key value pair
+					HashMap<String,String>  optionvalues=new HashMap<String,String>();
 					
 					Statement stat=conn.createStatement();
 					ResultSet rs=stat.executeQuery("SELECT ID,Identifier FROM StudentOutcome;");
@@ -70,7 +82,7 @@ public class CLOtoSO extends HttpServlet {
 	                while(rs.next()){
 	                	CLODescriptionsMap.put(Integer.parseInt(rs.getString("ID")), rs.getString("Description"));
 	                }			
-                    rs=stat.executeQuery("SELECT CLOID, SOId, link FROM CLOtoSO WHERE CourseId='" + id + "';")	;			
+                    rs=stat.executeQuery("SELECT CLOID, SOID, link FROM CLOtoSO WHERE CourseId='" + id + "';")	;			
 				    while(rs.next()){
 				    	CLOtoSOMap.put(rs.getString("CLOID") + "-" + rs.getString("SOID"),rs.getString("link"));
 				    }
@@ -81,7 +93,7 @@ public class CLOtoSO extends HttpServlet {
 				    
 				    	    
 				    
-				    
+				    //Attempt to push CLODescriptionsMap, SODescriptionsMap,SOIdsMap,CLOtoSOMap,TopicsCovered onto CLOtoSO.jsp page
 				    request.setAttribute("CLODescriptionsMap", CLODescriptionsMap);
 				    request.setAttribute("SODescriptionsMap", SODescriptionsMap);
 				    request.setAttribute("SOIdsMap",SOIdsMap);
@@ -89,24 +101,23 @@ public class CLOtoSO extends HttpServlet {
 				    request.setAttribute("id",id);
 				    request.setAttribute("TopicsCovered", TopicsCovered);
 				    
-				    optionvalues.put(1, "-");
-				    optionvalues.put(2, "I");
-				    optionvalues.put(3, "R");
-				    optionvalues.put(4, "A");
-				    request.setAttribute("optionvalues", optionvalues);
+				    
 				    request.setAttribute("selectedvalue", selectedvalue);
 				    
 				    
           // System.out.println(SOIdsMap +" "+ SODescriptionsMap +" "+CLODescriptionsMap );				    
 				}else{ 
+					// If id is not set pull the data from data base to populate the Combo Box
 					Statement stat=conn.createStatement();
 					ResultSet rs=stat.executeQuery("select ID,CourseDesignator from Course;");
 					
+					//CourseIdmap hash map to store Course Designator and ID as key key value pair
 					HashMap<String,Integer> CourseIdMap=new HashMap<String,Integer>(); 
 					while(rs.next()){
 					     CourseIdMap.put(rs.getString("CourseDesignator"),Integer.parseInt(rs.getString("ID")));	
 					     
 					 }
+					//Attempt to push the CourseIdMap hash map 
 					request.setAttribute("CourseIdMap",CourseIdMap);
 		   //System.out.println(CourseIdMap);
 			       	 }
@@ -118,8 +129,9 @@ public class CLOtoSO extends HttpServlet {
 			System.out.println(se);
 		}
 		
+		//Dispatching the attributes set to the CLOtoSO.jsp page
 		getServletContext().getRequestDispatcher("/CLOtoSO.jsp").forward(request, response);
-		getServletContext().getRequestDispatcher("/SyllabusGenerator.jsp").forward(request, response);
+		
 		
 		
 	}
@@ -131,33 +143,40 @@ public class CLOtoSO extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out=response.getWriter();
 		
-		String id=request.getParameter("id");
+		String id=request.getParameter("id");    //Attempt to pull id 
 		
 		Connection conn=null;
 		
 		try{
+			
+			//establishing connection to the database
 			Context ctx=new InitialContext();
 			DataSource ds=(DataSource)ctx.lookup("java:comp/env/jdbc/abetdb.sqlite.sqlite");
 			conn=ds.getConnection();
 			
-		Set keys=request.getParameterMap().keySet(); 
-		
-		Iterator it=keys.iterator();
+		Set keys=request.getParameterMap().keySet();    //Attempt to pull all the keys from KeySet to keys
+		/*System.out.println("the keys are"+keys);*/
+		Iterator it=keys.iterator();                    //iterating all the keys from the key set
 		
 		while(it.hasNext()){
 			 String key=((String)it.next());
-			 if(key.startsWith("map") && !request.getParameter(key).equals("-")){
+System.out.println(key+"," +request.getParameter(key));
+			//checking if the value is equal to the previously selected value by comparing the keys
+			 if(key.startsWith("map") && !request.getParameter(key).equals(request.getParameter("prev-"+key.substring(key.indexOf('-') + 1)))){
 			        String[] ids=key.substring(key.indexOf('-') + 1).split("_");
-			        System.out.println("ids is"+ids[0]);
-			        System.out.println("ids is"+ids[1]);
+			        
+			        
+			        
+			       
 			        String Identifier=request.getParameter(key);
                     
-			        Statement stat=conn.createStatement(); 
-			        String query="UPDATE CLOtoSO SET link='" + Identifier + "' where CourseId='" + id + "' AND CLOID='" + ids[1] +"' AND SOID='" + ids[0] + "';";
-	                	    		        
-			        ResultSet rs = stat.executeQuery(query);
-			        //while(rs.next()){ System.out.println(rs);}
-					//System.out.println(ids[0] + "," + ids[1]);
+			        Statement stat=conn.createStatement(); //query to update the CLOtoSO table in the data base
+			        String query="UPDATE CLOtoSO SET link='" + Identifier + "' where CourseId='" + id + "' AND CLOID='" + ids[0] +"' AND SOID='" + ids[1] + "';";
+	                	
+			        
+			        
+			         stat.executeUpdate(query);
+			        //Attempt to push the Identifier
 					request.setAttribute("Identifier", Identifier);
 			    }
 		    }
@@ -166,7 +185,7 @@ public class CLOtoSO extends HttpServlet {
 		}catch(SQLException se){
 			System.out.println(se);
 		}
-//System.out.println(request.getParameterMap().keySet() + "");
+
 		
 		response.sendRedirect("CLOtoSO?id=" + request.getParameter("id"));
 		
