@@ -21,57 +21,6 @@ Libraries Used:Jstl,util
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Course Learning Objectives to Student Outcomes Mapper</title>
 <link rel="stylesheet" type="text/css" href="Style.css"> 				<!-- css code for navigation bar -->
- <style>
- body{
-	font-family: sans-serif;
-	text-align: center;
-}
- #nav{
-	width: 1600px;
-	height: 125px;
-	background:#ccc; 
-	opacity: 1;
-}
-#wrapper{
-	height: 50px;
-	width: 1600px;
-	background: #660000;
-	opacity: 1;
-}
-#wrapper ul li{
-	list-style: none;
-	display: inline;
-	font-weight: bold;
-	padding: 10px;
-}
-#wrapper a:hover{
-color:black
-
-}
-#wrapper a{
-	color: white;
-	text-decoration: underline;
-	
-}
-table {
-    border-collapse: collapse;
-    width: 100%;
-}
-
-th, td {
-    text-align: center;
-    padding: 8px;
-    
-}
-
-
-
-
-th {
-    background-color: #660000;
-    color:  #660000;
-}
-</style>
 </head>
 <body>
 <h1 align="center"><span style="color:#660000">ABET</span>Application</h1>
